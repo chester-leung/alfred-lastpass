@@ -57,11 +57,16 @@ EOF
     [ -n "$email" ] || exit 0
     echo "$email" >"$DATA/email"
 
-    local out
-    if out=$("$LPASS" login --color=never "$email" </dev/null 2>&1); then
+    local out ok=0
+    out=$("$LPASS" login --color=never "$email" </dev/null 2>&1) && ok=1
+    rm -f "${TMPDIR:-/tmp}"/alfred-lastpass-askpass.*
+    if (( ok )); then
         touch_used
         install_autologout
         notify "Logged in. Auto-logout after ${idle_minutes:-60} min idle."
+    elif [[ "$out" == *askpass* ]]; then
+        # askpass exits non-zero on Cancel or after 3 rejected attempts.
+        notify "Login cancelled. If LastPass keeps rejecting it, run: lpass login $email"
     else
         notify "Login failed: $(echo "$out" | tail -1)"
     fi
