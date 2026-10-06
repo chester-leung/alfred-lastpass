@@ -58,7 +58,11 @@ EOF
     echo "$email" >"$DATA/email"
 
     local out ok=0
-    out=$("$LPASS" login --color=never "$email" </dev/null 2>&1) && ok=1
+    # --trust skips MFA on later logins from this Mac; without it some MFA
+    # accounts log in but can't download the vault ("Unable to fetch blob").
+    local trust=()
+    [ "${trust_device:-1}" = 1 ] && trust=(--trust)
+    out=$("$LPASS" login "${trust[@]}" --color=never "$email" </dev/null 2>&1) && ok=1
     rm -f "${TMPDIR:-/tmp}"/alfred-lastpass-askpass.*
     if (( ok )); then
         touch_used

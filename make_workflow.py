@@ -43,6 +43,7 @@ info = {
         "idle_minutes": "60",
         "clear_clipboard_seconds": "30",
         "lastpass_email": "",
+        "trust_device": "1",
         "lpass_path": "",
     },
     "variablesdontexport": ["lastpass_email", "lpass_path"],

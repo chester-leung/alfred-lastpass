@@ -156,6 +156,8 @@
 		<string>lp</string>
 		<key>lpass_path</key>
 		<string></string>
+		<key>trust_device</key>
+		<string>1</string>
 	</dict>
 	<key>variablesdontexport</key>
 	<array>

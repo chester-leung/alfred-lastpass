@@ -29,7 +29,13 @@ after a period of inactivity.
 - **Backstop:** the `lpass` agent is started with `LPASS_AGENT_TIMEOUT` of 8h,
   so the key is dropped from memory after 8h even if the launchd job isn't
   running. You'd then be asked to unlock with your master password.
-- `--trust` and `--plaintext-key` are never used, so each login needs MFA.
+- Logins use `--trust` by default, marking this Mac as a trusted device so
+  later logins need only the master password (like "trust this device" in the
+  browser). Some MFA-enabled accounts otherwise log in but fail to download the
+  vault with "Unable to fetch blob" (lastpass-cli
+  [#510](https://github.com/lastpass/lastpass-cli/issues/510)). Set
+  `trust_device` to `0` to require MFA on every login.
+- `--plaintext-key` is never used: the decryption key only lives in the agent's memory.
 
 Note: the idle timer only counts use of this workflow. If you use `lpass` from
 a terminal too, the background job will still log it out once the workflow has
@@ -43,6 +49,11 @@ been idle for `idle_minutes`.
    `./build.sh` builds `dist/LastPass.alfredworkflow` to double-click.
 3. Type `lp` and choose **Log in to LastPass**.
 
+If login keeps getting rejected, run `LPASS_DISABLE_PINENTRY=1 lpass login --trust <email>`
+in a terminal: it shows LastPass's actual error, which `lpass` doesn't pass to
+the dialog. A session started there works with the workflow too, but the
+idle-logout job is only installed by logging in (or unlocking) through Alfred.
+
 ## Settings
 
 Workflow variables (Alfred Preferences → the workflow → **[𝑥]**):
@@ -53,6 +64,7 @@ Workflow variables (Alfred Preferences → the workflow → **[𝑥]**):
 | `idle_minutes` | `60` | Log out after this long without use (applied at next login) |
 | `clear_clipboard_seconds` | `30` | `0` disables clearing |
 | `lastpass_email` | | Pre-fills the login dialog |
+| `trust_device` | `1` | `0` = don't use `--trust`, so every login needs MFA |
 | `lpass_path` | | Only needed if `lpass` isn't in Nix/Homebrew default locations |
 
 ## Uninstall the idle-logout job
