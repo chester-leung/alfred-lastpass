@@ -4,6 +4,8 @@ Search your LastPass vault from Alfred using the official
 [`lpass`](https://github.com/lastpass/lastpass-cli) CLI, with automatic logout
 after a period of inactivity.
 
+**[DOWNLOAD](https://github.com/chester-leung/alfred-lastpass/releases/latest)**
+
 | Key | Action |
 | --- | --- |
 | `lp <query>` | Search by name, username, site or folder |
@@ -45,8 +47,9 @@ been idle for `idle_minutes`.
 
 1. Install `lpass` (`nix profile install nixpkgs#lastpass-cli`, or
    `brew install lastpass-cli`).
-2. `./build.sh install` copies the workflow into Alfred's preferences, or
-   `./build.sh` builds `dist/LastPass.alfredworkflow` to double-click.
+2. [Download `LastPass.alfredworkflow`](https://github.com/chester-leung/alfred-lastpass/releases/latest)
+   and double-click it. From a clone, `./build.sh install` copies the workflow
+   into Alfred's preferences instead.
 3. Type `lp` and choose **Log in to LastPass**.
 
 If login keeps getting rejected, run `LPASS_DISABLE_PINENTRY=1 lpass login --trust <email>`

@@ -1,4 +1,5 @@
 """Writes workflow/info.plist for the LastPass Alfred workflow."""
+import os
 import plistlib
 
 SF, RUN = "B2E0C1AB-0001-4000-8000-000000000001", "B2E0C1AB-0002-4000-8000-000000000002"
@@ -13,9 +14,9 @@ info = {
     "readme": "`lp` searches your vault. ↩ copies the password (concealed, cleared after 30s), "
               "⌘↩ copies the username, ⌥↩ opens the URL. Logs out of lpass automatically "
               "after `idle_minutes` without use.",
-    "webaddress": "",
+    "webaddress": "https://github.com/chester-leung/alfred-lastpass",
     "disabled": False,
-    "version": "1.0",
+    "version": os.environ.get("VERSION", "1.0"),  # CI passes it from the tag
     "objects": [
         {"uid": SF, "type": "alfred.workflow.input.scriptfilter", "version": 3, "config": {
             "keyword": "{var:lastpass_keyword}", "withspace": True, "argumenttype": 1,
