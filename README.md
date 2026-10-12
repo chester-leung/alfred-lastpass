@@ -30,6 +30,9 @@ after a period of inactivity.
   encrypted vault cache stay on disk, so unlocking only needs the master
   password (no email or MFA). Using the workflow resets the timer. Use
   `lp logout` to remove the session entirely.
+- **Lock on screen lock / sleep:** a second launchd job
+  (`com.chesterleung.alfred-lastpass.lockwatch`) keeps `lockwatch.js` running,
+  which stops the agent as soon as the screen locks or the Mac goes to sleep.
 - **Backstop:** the `lpass` agent is started with `LPASS_AGENT_TIMEOUT` of 8h,
   so the key is dropped from memory after 8h even if the launchd job isn't
   running. You'd then be asked to unlock with your master password.
@@ -57,7 +60,7 @@ been idle for `idle_minutes`.
 If login keeps getting rejected, run `LPASS_DISABLE_PINENTRY=1 lpass login --trust <email>`
 in a terminal: it shows LastPass's actual error, which `lpass` doesn't pass to
 the dialog. A session started there works with the workflow too, but the
-idle-lock job is only installed by logging in (or unlocking) through Alfred.
+lock jobs are only installed by logging in (or unlocking) through Alfred.
 
 ## Settings
 
@@ -72,7 +75,9 @@ Workflow variables (Alfred Preferences → the workflow → **[𝑥]**):
 | `trust_device` | `1` | `0` = don't use `--trust`, so every login needs MFA |
 | `lpass_path` | | Only needed if `lpass` isn't in Nix/Homebrew default locations |
 
-## Uninstall the idle-lock job
+## Uninstall the lock jobs
 
-    launchctl bootout gui/$(id -u)/com.chesterleung.alfred-lastpass.autologout
-    rm ~/Library/LaunchAgents/com.chesterleung.alfred-lastpass.autologout.plist
+    for job in autologout lockwatch; do
+        launchctl bootout gui/$(id -u)/com.chesterleung.alfred-lastpass.$job
+        rm ~/Library/LaunchAgents/com.chesterleung.alfred-lastpass.$job.plist
+    done

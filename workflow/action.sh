@@ -20,27 +20,42 @@ copy() {  # copy <conceal|plain> <label>
     fi
 }
 
-# Installs (or refreshes) the launchd job that locks after idle time.
+# Writes a launchd job from PlistBuddy commands and (re)starts it.
+load_job() {  # load_job <label> <PlistBuddy -c commands...>
+    local label=$1 plist="$HOME/Library/LaunchAgents/$1.plist" args=() c
+    shift
+    for c in "Add :Label string $label" "$@"; do args+=(-c "$c"); done
+    mkdir -p "$HOME/Library/LaunchAgents"
+    rm -f "$plist"
+    /usr/libexec/PlistBuddy "${args[@]}" "$plist" >/dev/null
+    launchctl bootout "gui/$(id -u)/$label" 2>/dev/null
+    launchctl bootstrap "gui/$(id -u)" "$plist"
+}
+
+# Installs (or refreshes) the launchd jobs that lock after idle time and when
+# the screen locks or the Mac sleeps.
 install_autologout() {
     local dir="$HOME/Library/Application Support/alfred-lastpass"
-    local plist="$HOME/Library/LaunchAgents/$LABEL.plist"
     local idle=$(( ${idle_minutes:-60} * 60 ))
-    mkdir -p "$dir" "$HOME/Library/LaunchAgents"
-    cp autologout.sh "$dir/autologout.sh"
-    rm -f "$plist"
-    /usr/libexec/PlistBuddy \
-        -c "Add :Label string $LABEL" \
-        -c "Add :ProgramArguments array" \
-        -c "Add :ProgramArguments:0 string /bin/bash" \
-        -c "Add :ProgramArguments:1 string $dir/autologout.sh" \
-        -c "Add :ProgramArguments:2 string $LPASS" \
-        -c "Add :ProgramArguments:3 string $LAST_USED" \
-        -c "Add :ProgramArguments:4 string $idle" \
-        -c "Add :StartInterval integer 300" \
-        -c "Add :RunAtLoad bool true" \
-        "$plist" >/dev/null
-    launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null
-    launchctl bootstrap "gui/$(id -u)" "$plist"
+    mkdir -p "$dir"
+    cp autologout.sh lockwatch.js "$dir/"
+    load_job "$LABEL" \
+        "Add :ProgramArguments array" \
+        "Add :ProgramArguments:0 string /bin/bash" \
+        "Add :ProgramArguments:1 string $dir/autologout.sh" \
+        "Add :ProgramArguments:2 string $LPASS" \
+        "Add :ProgramArguments:3 string $LAST_USED" \
+        "Add :ProgramArguments:4 string $idle" \
+        "Add :StartInterval integer 300" \
+        "Add :RunAtLoad bool true"
+    load_job "$LOCK_LABEL" \
+        "Add :ProgramArguments array" \
+        "Add :ProgramArguments:0 string /usr/bin/osascript" \
+        "Add :ProgramArguments:1 string -l" \
+        "Add :ProgramArguments:2 string JavaScript" \
+        "Add :ProgramArguments:3 string $dir/lockwatch.js" \
+        "Add :KeepAlive bool true" \
+        "Add :RunAtLoad bool true"
 }
 
 login() {

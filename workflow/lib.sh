@@ -5,6 +5,7 @@ DATA="${alfred_workflow_data:-$HOME/Library/Application Support/alfred-lastpass}
 mkdir -p "$DATA"
 LAST_USED="$DATA/last_used"
 LABEL="com.chesterleung.alfred-lastpass.autologout"
+LOCK_LABEL="com.chesterleung.alfred-lastpass.lockwatch"
 
 # Alfred runs scripts with a minimal PATH, so look in the usual install spots.
 find_lpass() {
