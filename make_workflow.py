@@ -8,12 +8,12 @@ CMD, ALT = 1048576, 524288
 info = {
     "bundleid": "com.chesterleung.lastpass",
     "name": "LastPass",
-    "description": "Search your LastPass vault with lpass, with idle auto-logout",
+    "description": "Search your LastPass vault with lpass, with idle auto-lock",
     "createdby": "Chester Leung",
     "category": "Productivity",
     "readme": "`lp` searches your vault. ↩ copies the password (concealed, cleared after 30s), "
-              "⌘↩ copies the username, ⌥↩ opens the URL. Logs out of lpass automatically "
-              "after `idle_minutes` without use.",
+              "⌘↩ copies the username, ⌥↩ opens the URL. Locks lpass automatically after "
+              "`idle_minutes` without use; unlocking only needs the master password.",
     "webaddress": "https://github.com/chester-leung/alfred-lastpass",
     "disabled": False,
     "version": os.environ.get("VERSION", "1.0"),  # CI passes it from the tag

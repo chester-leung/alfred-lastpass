@@ -21,7 +21,7 @@ LPASS=$(find_lpass)
 export LPASS_ASKPASS="$PWD/askpass.sh"
 export LPASS_DISABLE_PINENTRY=1
 # Hard cap on how long the agent holds the decryption key, regardless of use.
-# Idle logout (autologout.sh) normally kicks in long before this.
+# Idle lock (autologout.sh) normally kicks in long before this.
 export LPASS_AGENT_TIMEOUT=$((8 * 3600))
 
 touch_used() { touch "$LAST_USED"; }

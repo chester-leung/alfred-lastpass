@@ -20,7 +20,7 @@ copy() {  # copy <conceal|plain> <label>
     fi
 }
 
-# Installs (or refreshes) the launchd job that logs out after idle time.
+# Installs (or refreshes) the launchd job that locks after idle time.
 install_autologout() {
     local dir="$HOME/Library/Application Support/alfred-lastpass"
     local plist="$HOME/Library/LaunchAgents/$LABEL.plist"
@@ -35,7 +35,7 @@ install_autologout() {
         -c "Add :ProgramArguments:1 string $dir/autologout.sh" \
         -c "Add :ProgramArguments:2 string $LPASS" \
         -c "Add :ProgramArguments:3 string $LAST_USED" \
-        -c "Add :ProgramArguments:4 integer $idle" \
+        -c "Add :ProgramArguments:4 string $idle" \
         -c "Add :StartInterval integer 300" \
         -c "Add :RunAtLoad bool true" \
         "$plist" >/dev/null
@@ -67,7 +67,7 @@ EOF
     if (( ok )); then
         touch_used
         install_autologout
-        notify "Logged in. Auto-logout after ${idle_minutes:-60} min idle."
+        notify "Logged in. Locks after ${idle_minutes:-60} min idle."
     elif [[ "$out" == *askpass* ]]; then
         # askpass exits non-zero on Cancel or after 3 rejected attempts.
         notify "Login cancelled. If LastPass keeps rejecting it, run: lpass login $email"

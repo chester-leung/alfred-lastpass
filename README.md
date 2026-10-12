@@ -1,7 +1,7 @@
 # LastPass for Alfred
 
 Search your LastPass vault from Alfred using the official
-[`lpass`](https://github.com/lastpass/lastpass-cli) CLI, with automatic logout
+[`lpass`](https://github.com/lastpass/lastpass-cli) CLI, with automatic locking
 after a period of inactivity.
 
 **[DOWNLOAD](https://github.com/chester-leung/alfred-lastpass/releases/latest)**
@@ -23,11 +23,13 @@ after a period of inactivity.
 - **Copied passwords** are marked `org.nspasteboard.ConcealedType`, so Alfred's
   clipboard history and other well-behaved clipboard managers don't record
   them, and are cleared after 30s unless you've copied something else since.
-- **Idle logout:** after logging in, the workflow installs a launchd job
+- **Idle lock:** after logging in, the workflow installs a launchd job
   (`com.chesterleung.alfred-lastpass.autologout`) that runs every 5 minutes.
-  Once the workflow hasn't been used for `idle_minutes` (default 60) it runs
-  `lpass logout --force`, which removes the local session, encrypted vault
-  cache and agent. Using the workflow resets the timer.
+  Once the workflow hasn't been used for `idle_minutes` (default 60) it stops
+  the `lpass` agent, dropping the decryption key from memory. The session and
+  encrypted vault cache stay on disk, so unlocking only needs the master
+  password (no email or MFA). Using the workflow resets the timer. Use
+  `lp logout` to remove the session entirely.
 - **Backstop:** the `lpass` agent is started with `LPASS_AGENT_TIMEOUT` of 8h,
   so the key is dropped from memory after 8h even if the launchd job isn't
   running. You'd then be asked to unlock with your master password.
@@ -40,7 +42,7 @@ after a period of inactivity.
 - `--plaintext-key` is never used: the decryption key only lives in the agent's memory.
 
 Note: the idle timer only counts use of this workflow. If you use `lpass` from
-a terminal too, the background job will still log it out once the workflow has
+a terminal too, the background job will still lock it once the workflow has
 been idle for `idle_minutes`.
 
 ## Install
@@ -55,7 +57,7 @@ been idle for `idle_minutes`.
 If login keeps getting rejected, run `LPASS_DISABLE_PINENTRY=1 lpass login --trust <email>`
 in a terminal: it shows LastPass's actual error, which `lpass` doesn't pass to
 the dialog. A session started there works with the workflow too, but the
-idle-logout job is only installed by logging in (or unlocking) through Alfred.
+idle-lock job is only installed by logging in (or unlocking) through Alfred.
 
 ## Settings
 
@@ -64,13 +66,13 @@ Workflow variables (Alfred Preferences → the workflow → **[𝑥]**):
 | Variable | Default | |
 | --- | --- | --- |
 | `lastpass_keyword` | `lp` | Alfred keyword |
-| `idle_minutes` | `60` | Log out after this long without use (applied at next login) |
+| `idle_minutes` | `60` | Lock after this long without use (applied at next unlock) |
 | `clear_clipboard_seconds` | `30` | `0` disables clearing |
 | `lastpass_email` | | Pre-fills the login dialog |
 | `trust_device` | `1` | `0` = don't use `--trust`, so every login needs MFA |
 | `lpass_path` | | Only needed if `lpass` isn't in Nix/Homebrew default locations |
 
-## Uninstall the idle-logout job
+## Uninstall the idle-lock job
 
     launchctl bootout gui/$(id -u)/com.chesterleung.alfred-lastpass.autologout
     rm ~/Library/LaunchAgents/com.chesterleung.alfred-lastpass.autologout.plist
